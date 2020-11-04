@@ -13,5 +13,6 @@ namespace StudentsEFAssignment.Contexts
         {
             optionsBuilder.UseSqlServer("server=.;database=tsu;Integrated security=true;");
         }
+
     }
 }
