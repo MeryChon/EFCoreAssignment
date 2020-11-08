@@ -1,8 +1,11 @@
 ﻿using EFCoreAssignment.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using StudentsEFAssignment.Contexts;
 using StudentsEFAssignment.Entities;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Objects;
 using System.Linq;
 
 namespace EFCoreAssignment.Api
@@ -50,6 +53,35 @@ namespace EFCoreAssignment.Api
                               StudentLastName = student.LastName,
                               SubjectName = subj.Name
                           }).ToList();
+
+            //DbSet<StudentSubject> studentSubjects = context.StudentSubjects;
+            //DbSet<Student> students = context.Students;
+            //DbSet<Subject> subjects = context.Subjects;
+
+            //var query = studentSubjects.Join(
+            //        subjects,
+            //        studentSubject => studentSubject.SubjectId,
+            //        subject => subject.Id,
+            //        (studentSubject, subject) => new
+            //        {
+            //            StudentSubjectId = studentSubject.Id,
+            //            SubjectName = subject.Name,
+            //            StudentId = studentSubject.StudentId
+            //        }
+            //    ).Join(
+            //        students,
+            //        studentSubjectToSubject => studentSubjectToSubject.StudentId,
+            //        student => student.Id,
+            //        (studentSubjectToSubject, student) => new StudentSubjectModel
+            //        {
+            //            Id = studentSubjectToSubject.StudentSubjectId,
+            //            StudentFirstName = student.FirstName,
+            //            StudentLastName = student.LastName,
+            //            SubjectName = studentSubjectToSubject.SubjectName
+            //        }
+            //    );
+
+            //List<StudentSubjectModel> result = query.ToList();
 
             return result;
         }
