@@ -9,7 +9,7 @@ namespace EFCoreAssignment.Util
 {
     class ScoresFileReader
     {
-        private readonly string ProblemTextPrefix = "";
+        private readonly string ProblemTextPrefix = "Problem at line N.{0}: ";
 
         private string FilePath = "";
         private List<string> FailedImportsInfo;
@@ -28,8 +28,6 @@ namespace EFCoreAssignment.Util
 
         private void ReadLines()
         {
-            // Open a csv file TODO: generify path like .\Resource\StudentPointsData.csv
-            //string filePath = @"C:\Users\meryc\Desktop\მაგისტრატურა\Programming Technologies\EFCoreAssignment\EFCoreAssignment\EFCoreAssignment\Resources\StudentPointsData.csv";
             string[] fileLines = null;
             try
             {
@@ -53,18 +51,16 @@ namespace EFCoreAssignment.Util
             {
                 for (int i = 1; i < FileLines.Length; i++)
                 {
-                    string problemString = "Problem at line N." + i + ": ";
-
-
                     string line = FileLines[i];
                     string[] dataArray = line.Split(",", StringSplitOptions.RemoveEmptyEntries);
                     if (dataArray == null || dataArray.Length < 3)
                     {
+                        string problemString = String.Format(ProblemTextPrefix, i + 1);
                         FailedImportsInfo.Add(problemString + "Malformed data input");
                     }
                     else
                     {
-                        ParseLineData(dataArray);
+                        ParseLineData(dataArray, i);
                     }
                 }
 
@@ -72,7 +68,7 @@ namespace EFCoreAssignment.Util
             }
         }
 
-        private void ParseLineData(string[] dataArray)
+        private void ParseLineData(string[] dataArray, int lineIndex)
         {
             long studentId = long.Parse(dataArray[0].Trim());
             long subjectId = long.Parse(dataArray[1].Trim());
@@ -82,7 +78,7 @@ namespace EFCoreAssignment.Util
             bool isValidSubjectId = api.SubjectExists(subjectId);
             StudentSubject existingStudentSubject = api.GetStudentSubject(studentId, subjectId);
 
-            string problemString = ProblemTextPrefix;
+            string problemString = String.Format(ProblemTextPrefix, lineIndex + 1);
 
             if (!isValidStudentId || !isValidSubjectId)
             {
