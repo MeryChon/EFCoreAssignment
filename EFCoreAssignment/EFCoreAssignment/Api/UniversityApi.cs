@@ -1,5 +1,4 @@
 ﻿using EFCoreAssignment.Models;
-using Microsoft.EntityFrameworkCore.Internal;
 using StudentsEFAssignment.Contexts;
 using StudentsEFAssignment.Entities;
 using System;
@@ -60,6 +59,21 @@ namespace EFCoreAssignment.Api
             return context.Students.Find(studentId);
         }
 
+        public bool SubjectExists(long subjectId)
+        {
+            return context.Subjects.Find(subjectId) != null;
+        }
+
+        public bool StudentExists(long studentId)
+        {
+            return context.Students.Find(studentId) != null;
+        }
+
+        internal StudentSubject GetStudentSubject(long studentId, long subjectId)
+        {
+            return context.StudentSubjects.SingleOrDefault(s => s.StudentId == studentId && s.SubjectId == subjectId);
+        }
+
         public void AddSubjects(List<Subject> subjects)
         {
             foreach (Subject s in subjects)
@@ -70,10 +84,14 @@ namespace EFCoreAssignment.Api
             context.SaveChanges();
         }
 
-        internal void SaveStudentSubjectScore(long id, double score)
+        internal void SaveStudentSubjectScore(long studentId, long subjectId, double score)
         {
-            StudentSubject ss = context.StudentSubjects.SingleOrDefault(s => s.Id == id);
-            ss.Score = score;
+            StudentSubject ss = context.StudentSubjects.SingleOrDefault(s => s.StudentId == studentId && s.SubjectId == subjectId);
+            if (ss != null)
+            {
+                ss.Score = score;
+            }
+
             context.SaveChanges();
         }
 
