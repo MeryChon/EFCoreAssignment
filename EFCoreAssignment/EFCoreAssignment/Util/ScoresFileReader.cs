@@ -26,22 +26,6 @@ namespace EFCoreAssignment.Util
         }
 
 
-        private void ReadLines()
-        {
-            string[] fileLines = null;
-            try
-            {
-                fileLines = File.ReadAllLines(FilePath, Encoding.UTF8);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error while reading file located at " + FilePath);
-                Console.WriteLine(e.Message);
-            }
-
-            FileLines = fileLines;
-        }
-
 
         public void ParseAndStoreData()
         {
@@ -66,6 +50,23 @@ namespace EFCoreAssignment.Util
 
                 PrintResults();
             }
+        }
+
+
+        private void ReadLines()
+        {
+            string[] fileLines = null;
+            try
+            {
+                fileLines = File.ReadAllLines(FilePath, Encoding.UTF8);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error while reading file located at " + FilePath);
+                Console.WriteLine(e.Message);
+            }
+
+            FileLines = fileLines;
         }
 
         private void ParseLineData(string[] dataArray, int lineIndex)
