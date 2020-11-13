@@ -7,77 +7,99 @@ using System.Text;
 
 namespace EFCoreAssignment.Util
 {
-    class ScoresFileReader
+    public class ScoresFileReader
     {
         private readonly string ProblemTextPrefix = "Problem at line N.{0}: ";
 
-        private string FilePath = "";
-        private List<string> FailedImportsInfo;
-        private string[] FileLines;
-        private readonly UniversityApi api; //TODO fix injection
-        private int SuccessfulImportsCount;
+        private IUniversityApi Api { get; set; }
 
-        public ScoresFileReader(string path)
+        public string FilePath { get; set; }
+        public List<string> FailedImportsInfo { get; private set; }
+        public int SuccessfulImportsCount { get; private set; }
+
+        public ScoresFileReader(string path, IUniversityApi api)
         {
             FilePath = path;
             FailedImportsInfo = new List<string>();
             SuccessfulImportsCount = 0;
-            api = new UniversityApi();
+            this.Api = api;
         }
 
-
-
-        public void ParseAndStoreData()
+        public ScoresFileReader()
         {
-            ReadLines();
+            FailedImportsInfo = new List<string>();
+            SuccessfulImportsCount = 0;
+        }
 
-            if (FileLines != null && FileLines.Length > 1) // line 0 is headers
+        public void ReadAndStoreFileData()
+        {
+            string[] fileLines = ReadLines(FilePath);
+
+            ParseLines(fileLines);
+
+            if (fileLines != null && fileLines.Length > 1) // line 0 is headers
             {
-                for (int i = 1; i < FileLines.Length; i++)
-                {
-                    string line = FileLines[i];
-                    string[] dataArray = line.Split(",", StringSplitOptions.RemoveEmptyEntries);
-                    if (dataArray == null || dataArray.Length < 3)
-                    {
-                        string problemString = String.Format(ProblemTextPrefix, i + 1);
-                        FailedImportsInfo.Add(problemString + "Malformed data input");
-                    }
-                    else
-                    {
-                        ParseLineData(dataArray, i);
-                    }
-                }
-
                 PrintResults();
             }
         }
 
 
-        private void ReadLines()
+        public string[] ReadLines(string path)
         {
             string[] fileLines = null;
             try
             {
-                fileLines = File.ReadAllLines(FilePath, Encoding.UTF8);
+                fileLines = File.ReadAllLines(path, Encoding.UTF8);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error while reading file located at " + FilePath);
+                Console.WriteLine("Error while reading file located at " + path);
                 Console.WriteLine(e.Message);
             }
 
-            FileLines = fileLines;
+            return fileLines;
         }
 
-        private void ParseLineData(string[] dataArray, int lineIndex)
+        public void ParseLines(string[] lines)
         {
+            if (lines != null && lines.Length > 1) // line 0 is headers
+            {
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    string line = lines[i];
+                    ParseLine(line, i);
+                }
+            }
+        }
+
+        public void ParseLine(string line, int lineIndex)
+        {
+            string[] dataArray = line.Split(",", StringSplitOptions.RemoveEmptyEntries);
+            if (dataArray == null || dataArray.Length < 3)
+            {
+                string problemString = String.Format(ProblemTextPrefix, lineIndex + 1);
+                FailedImportsInfo.Add(problemString + "Malformed data input");
+            }
+            else
+            {
+                ParseLineData(dataArray, lineIndex);
+            }
+        }
+
+        public StudentSubject ParseLineData(string[] dataArray, int lineIndex)
+        {
+            if (Api == null)
+            {
+                throw new Exception("Api field must be set");
+            }
+
             long studentId = long.Parse(dataArray[0].Trim());
             long subjectId = long.Parse(dataArray[1].Trim());
             int score = Int32.Parse(dataArray[2].Trim());
 
-            bool isValidStudentId = api.StudentExists(studentId);
-            bool isValidSubjectId = api.SubjectExists(subjectId);
-            StudentSubject existingStudentSubject = api.GetStudentSubject(studentId, subjectId);
+            bool isValidStudentId = Api.StudentExists(studentId);
+            bool isValidSubjectId = Api.SubjectExists(subjectId);
+            StudentSubject existingStudentSubject = Api.GetStudentSubject(studentId, subjectId);
 
             string problemString = String.Format(ProblemTextPrefix, lineIndex + 1);
 
@@ -103,13 +125,15 @@ namespace EFCoreAssignment.Util
                 }
                 else
                 {
-                    api.SaveStudentSubjectScore(studentId, subjectId, score);
+                    existingStudentSubject = Api.SaveStudentSubjectScore(studentId, subjectId, score);
                     SuccessfulImportsCount++;
                 }
             }
+
+            return existingStudentSubject;
         }
 
-        private void PrintResults()
+        public void PrintResults()
         {
             Console.WriteLine("Number of successfully saved entries: " + SuccessfulImportsCount);
             Console.WriteLine("Number of failed attempts: " + FailedImportsInfo.Count);

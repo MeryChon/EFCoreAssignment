@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace EFCoreAssignment.Models
 {
-    class StudentSubjectModel
+    public class StudentSubjectDto
     {
         public long Id { get; set; }
         public string StudentFirstName { get; set; }

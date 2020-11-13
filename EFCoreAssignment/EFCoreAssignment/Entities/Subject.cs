@@ -5,7 +5,7 @@ using System.Text;
 
 namespace StudentsEFAssignment.Entities
 {
-    class Subject
+    public class Subject
     {
         public long Id { get; set; }
         public string Code { get; set; }

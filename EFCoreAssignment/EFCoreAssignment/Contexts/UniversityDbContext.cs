@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace StudentsEFAssignment.Contexts
 {
-    class UniversityDbContext : DbContext
+    public class UniversityDbContext : DbContext
     {
         public DbSet<Student> Students { get; set; }
         public DbSet<Subject> Subjects { get; set; }

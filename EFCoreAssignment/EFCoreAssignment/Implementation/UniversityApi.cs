@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace EFCoreAssignment.Api
 {
-    class UniversityApi
+    public class UniversityApi : IUniversityApi
     {
 
         private UniversityDbContext context;
 
-        public UniversityApi()
+        public UniversityApi(UniversityDbContext dbContext)
         {
-            context = new UniversityDbContext();
+            context = dbContext;
         }
 
 
@@ -38,12 +38,12 @@ namespace EFCoreAssignment.Api
             return context.StudentSubjects.ToList();
         }
 
-        public List<StudentSubjectModel> GetAllStudentSubjectModels()
+        public List<StudentSubjectDto> GetAllStudentSubjectModels()
         {
             var result = (from ss in context.StudentSubjects
                           join subj in context.Subjects on ss.SubjectId equals subj.Id
                           join student in context.Students on ss.StudentId equals student.Id
-                          select new StudentSubjectModel
+                          select new StudentSubjectDto
                           {
                               Id = ss.Id,
                               StudentFirstName = student.FirstName,
@@ -69,7 +69,7 @@ namespace EFCoreAssignment.Api
             return context.Students.Find(studentId) != null;
         }
 
-        internal StudentSubject GetStudentSubject(long studentId, long subjectId)
+        public StudentSubject GetStudentSubject(long studentId, long subjectId)
         {
             return context.StudentSubjects.SingleOrDefault(s => s.StudentId == studentId && s.SubjectId == subjectId);
         }
@@ -84,7 +84,7 @@ namespace EFCoreAssignment.Api
             context.SaveChanges();
         }
 
-        internal void SaveStudentSubjectScore(long studentId, long subjectId, double score)
+        public StudentSubject SaveStudentSubjectScore(long studentId, long subjectId, double score)
         {
             StudentSubject ss = context.StudentSubjects.SingleOrDefault(s => s.StudentId == studentId && s.SubjectId == subjectId);
             if (ss != null)
@@ -93,6 +93,7 @@ namespace EFCoreAssignment.Api
             }
 
             context.SaveChanges();
+            return ss;
         }
 
         public void EnrollStudents()

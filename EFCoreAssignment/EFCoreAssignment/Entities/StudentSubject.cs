@@ -3,7 +3,7 @@ using System;
 
 namespace StudentsEFAssignment.Entities
 {
-    class StudentSubject
+    public class StudentSubject
     {
         public long Id { get; set; }
         public long StudentId { get; set; }
