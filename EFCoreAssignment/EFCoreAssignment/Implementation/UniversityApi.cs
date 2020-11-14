@@ -90,9 +90,9 @@ namespace EFCoreAssignment.Api
             if (ss != null)
             {
                 ss.Score = score;
+                context.SaveChanges();
             }
-
-            context.SaveChanges();
+            
             return ss;
         }
 

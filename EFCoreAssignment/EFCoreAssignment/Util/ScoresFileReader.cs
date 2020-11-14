@@ -67,30 +67,33 @@ namespace EFCoreAssignment.Util
                 for (int i = 1; i < lines.Length; i++)
                 {
                     string line = lines[i];
-                    ParseLine(line, i);
+                    string[] lineDataArray = ParseLine(line, i);
+                    if (lineDataArray != null)
+                    {
+                        ParseLineData(lineDataArray, i);
+                    }
                 }
             }
         }
 
-        public void ParseLine(string line, int lineIndex)
+        public string[] ParseLine(string line, int lineIndex)
         {
             string[] dataArray = line.Split(",", StringSplitOptions.RemoveEmptyEntries);
             if (dataArray == null || dataArray.Length < 3)
             {
                 string problemString = String.Format(ProblemTextPrefix, lineIndex + 1);
                 FailedImportsInfo.Add(problemString + "Malformed data input");
+                return null;
             }
-            else
-            {
-                ParseLineData(dataArray, lineIndex);
-            }
+
+            return dataArray;
         }
 
         public StudentSubject ParseLineData(string[] dataArray, int lineIndex)
         {
             if (Api == null)
             {
-                throw new Exception("Api field must be set");
+                throw new Exception("Api must be set");
             }
 
             long studentId = long.Parse(dataArray[0].Trim());
