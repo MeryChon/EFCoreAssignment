@@ -17,10 +17,35 @@ namespace EFCoreAssignement.Test
         [ClassInitialize]
         public static void BeforeAllTests(TestContext context)
         {
-            //var mockStudentSet = new Mock<DbSet<Student>>();
-            //var mockSubjectSet = new Mock<DbSet<Subject>>();
-            IQueryable<StudentSubject> data = new List<StudentSubject>
-            {
+            var mockStudentSet = SetupMockDbSet(new List<Student> {
+                new Student
+                {
+                    Id = 5,
+                    FirstName = "Mikasa",
+                    LastName = "Akerman"
+                },
+                new Student
+                {
+                    Id = 10,
+                    FirstName = "Eren",
+                    LastName = "Yeager"
+                }
+            });
+
+            var mockSubjectSet = SetupMockDbSet(new List<Subject> {
+                new Subject
+                {
+                    Id = 2,
+                    Name = "Physics"
+                },
+                new Subject
+                {
+                    Id = 3,
+                    Name = "Multicore Programming"
+                }
+            });
+
+            var mockStudentSubjectSet = SetupMockDbSet(new List<StudentSubject> {
                 new StudentSubject
                 {
                     Id = 1,
@@ -39,17 +64,11 @@ namespace EFCoreAssignement.Test
                     SubjectId = 3,
                     Score = 100
                 }
-            }.AsQueryable();
-
-            var mockStudentSubjectSet = new Mock<DbSet<StudentSubject>>();
-            mockStudentSubjectSet.As<IQueryable<StudentSubject>>().Setup(ss => ss.Provider).Returns(data.Provider);
-            mockStudentSubjectSet.As<IQueryable<StudentSubject>>().Setup(ss => ss.Expression).Returns(data.Expression);
-            mockStudentSubjectSet.As<IQueryable<StudentSubject>>().Setup(ss => ss.ElementType).Returns(data.ElementType);
-            mockStudentSubjectSet.As<IQueryable<StudentSubject>>().Setup(ss => ss.GetEnumerator()).Returns(data.GetEnumerator());
+            });
 
             var mockContext = new Mock<UniversityDbContext>();
-            //mockContext.Setup(m => m.Students).Returns(mockStudentSet.Object);
-            //mockContext.Setup(m => m.Subjects).Returns(mockSubjectSet.Object);
+            mockContext.Setup(m => m.Students).Returns(mockStudentSet.Object);
+            mockContext.Setup(m => m.Subjects).Returns(mockSubjectSet.Object);
             mockContext.Setup(m => m.StudentSubjects).Returns(mockStudentSubjectSet.Object);
 
             api = new UniversityApi(mockContext.Object);
@@ -88,7 +107,40 @@ namespace EFCoreAssignement.Test
             Assert.IsNull(ss);
         }
 
+        //[TestMethod] FIXME: This method fails
+        //public void StudentExistsTestSuccess()
+        //{
+        //    Assert.IsTrue(api.StudentExists(10));
+        //}
 
+        [TestMethod]
+        public void StudentExistsTestFail()
+        {
+            Assert.IsFalse(api.StudentExists(0));
+        }
+
+        //[TestMethod] FIXME: This method fails
+        //public void SubjectExistsTestSuccess()
+        //{
+        //    Assert.IsTrue(api.SubjectExists(2));
+        //}
+
+        [TestMethod]
+        public void SubjectExistsTestFail()
+        {
+            Assert.IsFalse(api.SubjectExists(100));
+        }
+
+        private static Mock<DbSet<T>> SetupMockDbSet<T>(List<T> seedData) where T : class
+        {
+            IQueryable<T> data = seedData.AsQueryable();
+            var mockDbSet = new Mock<DbSet<T>>();
+            mockDbSet.As<IQueryable<T>>().Setup(t => t.Provider).Returns(data.Provider);
+            mockDbSet.As<IQueryable<T>>().Setup(t => t.Expression).Returns(data.Expression);
+            mockDbSet.As<IQueryable<T>>().Setup(t => t.ElementType).Returns(data.ElementType);
+            mockDbSet.As<IQueryable<T>>().Setup(t => t.GetEnumerator()).Returns(data.GetEnumerator());
+            return mockDbSet;
+        }
 
     }
 }
